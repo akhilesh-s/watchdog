@@ -13,10 +13,10 @@ import * as core from "@actions/core";
     const token = core.getInput("GH_TOKEN") || "";
 
     // Check if required values are provided
-    if (!token) {
-      throw new Error("Required inputs (GITHUB_TOKEN) are not provided.");
-    } else if (!owner) {
+    if (!owner) {
       throw new Error("Required inputs (OWNER) are not provided.");
+    } else if (!token) {
+      throw new Error("Required inputs (GH_TOKEN) are not provided.");
     } else if (!repo) {
       throw new Error("Required inputs (REPO) are not provided.");
     } else if (!slackWebhookURL) {
