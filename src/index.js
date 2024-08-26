@@ -10,7 +10,7 @@ import * as core from "@actions/core";
     const owner = core.getInput("OWNER") || "";
     const repo = core.getInput("REPO") || "";
     const slackWebhookURL = core.getInput("SLACK_WEBHOOK_URL") || "";
-    const token = core.getInput("GITHUB_TOKEN") || "";
+    const token = core.getInput("GH_TOKEN") || "";
 
     // Check if required values are provided
     if (!token) {
