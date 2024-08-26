@@ -11,6 +11,7 @@ import * as core from "@actions/core";
     const repo = core.getInput("REPO") || "";
     const slackWebhookURL = core.getInput("SLACK_WEBHOOK_URL") || "";
     const token = core.getInput("GH_TOKEN") || "";
+    console.log("owner", owner);
 
     // Check if required values are provided
     if (!owner) {
