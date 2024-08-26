@@ -1,0 +1,24 @@
+name: Check Old PRs and Notify Slack
+
+on:
+  workflow_dispatch:
+
+jobs:
+  notify-old-prs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Run Node Script
+        uses: actions/setup-node@v2
+        with:
+          node-version: "20"
+
+      - name: Execute Script
+        run: node index.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          REPO: "notes-nest-client"
+          OWNER: "akhilesh-s"
