@@ -1,7 +1,8 @@
 name: Check Old PRs and Notify Slack
 
 on:
-  workflow_dispatch:
+  schedule:
+    - cron: "* * * * *" # Runs every minute for testing purposes; adjust as needed.
 
 jobs:
   notify-old-prs:
@@ -10,13 +11,23 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Run Node Script
+      - name: Clone Watchdog Repo
+        run: git clone https://github.com/akhilesh-s/watchdog.git
+
+      - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
           node-version: "20"
 
+      - name: Install Dependencies
+        run: |
+          cd watchdog
+          npm install
+
       - name: Execute Script
-        run: node index.js
+        run: |
+          cd watchdog
+          node src/index.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

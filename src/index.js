@@ -1,7 +1,7 @@
 import { Octokit } from "octokit";
 import dayjs from "dayjs";
 import axios from "axios";
-import * as core from '@actions/core';
+import * as core from "@actions/core";
 
 (() => {
   try {
@@ -13,10 +13,14 @@ import * as core from '@actions/core';
     const token = core.getInput("GITHUB_TOKEN") || "";
 
     // Check if required values are provided
-    if (!token || !owner || !repo || !slackWebhookURL) {
-      throw new Error(
-        "Required inputs (GITHUB_TOKEN, OWNER, REPO, SLACK_WEBHOOK_URL) are not provided."
-      );
+    if (!token) {
+      throw new Error("Required inputs (GITHUB_TOKEN) are not provided.");
+    } else if (!owner) {
+      throw new Error("Required inputs (OWNER) are not provided.");
+    } else if (!repo) {
+      throw new Error("Required inputs (REPO) are not provided.");
+    } else if (!slackWebhookURL) {
+      throw new Error("Required inputs ( SLACK_WEBHOOK_URL) are not provided.");
     }
 
     const octokit = new Octokit({
