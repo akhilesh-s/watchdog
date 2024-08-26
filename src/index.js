@@ -7,10 +7,10 @@ import * as core from "@actions/core";
   try {
     console.log("Initializing Script...");
 
-    const owner = core.getInput("OWNER") || "";
-    const repo = core.getInput("REPO") || "";
-    const slackWebhookURL = core.getInput("SLACK_WEBHOOK_URL") || "";
-    const token = core.getInput("GH_TOKEN") || "";
+    const owner = process.env.OWNER || "";
+    const repo = process.env.REPO || "";
+    const slackWebhookURL = process.env.SLACK_WEBHOOK_URL || "";
+    const token = process.env.GH_TOKEN || "";
     console.log("owner", owner);
 
     // Check if required values are provided
