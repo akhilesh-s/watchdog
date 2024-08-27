@@ -67,6 +67,6 @@ import * as core from "@actions/core";
       }
     })();
   } catch (err) {
-    console.log("err", err);
+    console.error("[ERROR]", err);
   }
 })();
