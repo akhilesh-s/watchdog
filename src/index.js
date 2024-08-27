@@ -7,14 +7,10 @@ import * as core from "@actions/core";
   try {
     console.log("Initializing Script...");
 
-    const owner = process.env.OWNER || "";
-    const repo = process.env.REPO || "";
-    const slackWebhookURL = process.env.SLACK_WEBHOOK_URL || "";
-    const token = process.env.GH_TOKEN || "";
-    console.log("owner", owner);
-    console.log("repo", repo);
-    console.log("slackWebhookURL", slackWebhookURL);
-    console.log("token", token);
+    const owner = core.getInput("OWNER") || "";
+    const repo = core.getInput("REPO") || "";
+    const slackWebhookURL = core.getInput("SLACK_WEBHOOK_URL") || "";
+    const token = core.getInput("GH_TOKEN") || "";
 
     // Check if required values are provided
     if (!owner) {
@@ -47,9 +43,10 @@ import * as core from "@actions/core";
         console.log(`Found ${oldPRs.length} PRs open for more than 2 days.`);
         let messageArr = [];
         oldPRs.forEach((pr) => {
+          const prLink = `https://github.com/${owner}/${repo}/pull/${pr.number}`;
           const text = `- PR #${pr.number}: ${pr.title} (created on ${dayjs(
             pr.created_at
-          )}) by ${pr.user.login}`;
+          )}) by ${pr.user.login} [Link](${prLink})`;
           messageArr.push(text);
         });
 
