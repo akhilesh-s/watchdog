@@ -14,6 +14,7 @@ import * as core from "@actions/core";
 
     // Check if required values are provided
     if (!owner) {
+      core.error("Required inputs (OWNER) are not provided.");
       throw new Error("Required inputs (OWNER) are not provided.");
     } else if (!token) {
       throw new Error("Required inputs (GH_TOKEN) are not provided.");
@@ -68,5 +69,6 @@ import * as core from "@actions/core";
     })();
   } catch (err) {
     console.error("[ERROR]", err);
+    core.error("[ERROR]", err);
   }
 })();
