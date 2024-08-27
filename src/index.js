@@ -12,6 +12,9 @@ import * as core from "@actions/core";
     const slackWebhookURL = process.env.SLACK_WEBHOOK_URL || "";
     const token = process.env.GH_TOKEN || "";
     console.log("owner", owner);
+    console.log("repo", repo);
+    console.log("slackWebhookURL", slackWebhookURL);
+    console.log("token", token);
 
     // Check if required values are provided
     if (!owner) {
