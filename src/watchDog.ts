@@ -33,7 +33,6 @@ class WatchDog {
     return slackUserId ? `<@${slackUserId}>` : githubUsername;
   }
 
-  // Check if required values are provided
   private checkForError() {
     if (!this.owner) {
       throw new Error("Required inputs (OWNER) are not provided.");
@@ -57,15 +56,12 @@ class WatchDog {
 
   private async getApprovalStatus(prNumber: number) {
     try {
-      const owner = this.owner;
-      const repo = this.repo;
       const { data: reviews } = await this.octokit.rest.pulls.listReviews({
-        owner,
-        repo,
+        owner: this.owner,
+        repo: this.repo,
         pull_number: prNumber,
       });
 
-      // Check if there is at least one approved review
       const isApproved = reviews.some((review) => review.state === "APPROVED");
 
       return isApproved ? "[Approved]" : "[Not Approved]";
@@ -89,7 +85,9 @@ class WatchDog {
       const prLink = `https://github.com/${this.owner}/${this.repo}/pull/${pr.number}`;
       const approvalStatus = await this.getApprovalStatus(pr.number);
       const slackMention = this.getSlackUserMention(pr.user.login);
-      const text = `- PR #${pr.number}: ${pr.title} (opened for ${dayjs().diff(
+      const text = `        • PR #${pr.number}: ${
+        pr.title
+      } (opened for ${dayjs().diff(
         pr.created_at,
         "day"
       )} days) by ${slackMention} (${prLink}) ${approvalStatus}\n`;
@@ -97,9 +95,11 @@ class WatchDog {
     }
 
     const sortedByDate = Utils.sortByDate(messageMap);
-    const message = `*${type} PRs opened for more than ${
+    const message = `*[${
+      this.repo
+    }]* \n      *${type} PRs opened for more than ${
       this.openedFor
-    } days* \n\n${sortedByDate.join("")}`;
+    } days*\n\n${sortedByDate.join("")}`;
 
     return message;
   }
@@ -107,7 +107,9 @@ class WatchDog {
   async run() {
     try {
       this.checkForError();
-      this.octokit = new GithubClient(this.token);
+      const githubClient = new GithubClient(this.token);
+      const restClient = githubClient.rest;
+      this.octokit = restClient;
       const owner = this.owner;
       const repo = this.repo;
 
@@ -117,46 +119,48 @@ class WatchDog {
         state: "open",
       });
 
-      const oldActivePRs = this.getActivePRs(pullRequests, false);
-      const oldActiveDrafts = this.getActivePRs(pullRequests, true);
+      if (pullRequests) {
+        const oldActivePRs = this.getActivePRs(pullRequests, false);
+        const oldActiveDrafts = this.getActivePRs(pullRequests, true);
 
-      const hasActivePRs = oldActivePRs.length > 0;
-      const hasActiveDrafts = oldActiveDrafts.length > 0;
+        const hasActivePRs = oldActivePRs.length > 0;
+        const hasActiveDrafts = oldActiveDrafts.length > 0;
 
-      if (hasActivePRs || hasActiveDrafts) {
-        const messageArr: string[] = [];
+        if (hasActivePRs || hasActiveDrafts) {
+          const messageArr: string[] = [];
 
-        if (hasActivePRs) {
-          const activePRMessage = await this.generateMessage(
-            oldActivePRs,
-            "Active"
-          );
-          messageArr.push(activePRMessage);
+          if (hasActivePRs) {
+            const activePRMessage = await this.generateMessage(
+              oldActivePRs,
+              "Active"
+            );
+            messageArr.push(activePRMessage);
+          }
+
+          if (hasActiveDrafts) {
+            const draftPRMessage = await this.generateMessage(
+              oldActiveDrafts,
+              "Drafts"
+            );
+            messageArr.push(draftPRMessage);
+          }
+
+          const slackMessage = messageArr.join(" \n \n");
+
+          console.log("Slack message to be sent:", slackMessage);
+
+          // Send message to Slack
+          await axios.post(this.slackWebhookURL, {
+            text: slackMessage,
+          });
+          console.log("Slack notification sent.");
+        } else {
+          const text = `*[${this.repo}]* \n       No PRs open for more than ${this.openedFor} days for `;
+          console.log(text);
+          await axios.post(this.slackWebhookURL, {
+            text: text,
+          });
         }
-
-        if (hasActiveDrafts) {
-          const draftPRMessage = await this.generateMessage(
-            oldActiveDrafts,
-            "Drafts"
-          );
-          messageArr.push(draftPRMessage);
-        }
-
-        const slackMessage = messageArr.join("\n \n");
-
-        console.log("Slack message to be sent:", slackMessage);
-
-        // Send message to Slack
-        await axios.post(slackWebhookURL, {
-          text: slackMessage,
-        });
-        console.log("Slack notification sent.");
-      } else {
-        const text = "No PRs open for more than 2 days.";
-        console.log(text);
-        await axios.post(slackWebhookURL, {
-          text: text,
-        });
       }
     } catch (err) {
       throw new Error(err);

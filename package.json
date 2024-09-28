@@ -15,5 +15,9 @@
     "dayjs": "^1.11.13",
     "js-yaml": "^4.1.0",
     "octokit": "^4.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.4",
+    "tsx": "^4.19.0"
   }
 }
