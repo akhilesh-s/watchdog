@@ -155,7 +155,7 @@ class WatchDog {
           });
           console.log("Slack notification sent.");
         } else {
-          const text = `*[${this.repo}]* \n       No PRs open for more than ${this.openedFor} days for `;
+          const text = `*[${this.repo}]* \n       No PRs open for more than ${this.openedFor} days `;
           console.log(text);
           await axios.post(this.slackWebhookURL, {
             text: text,
